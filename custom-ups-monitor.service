@@ -1,0 +1,16 @@
+[Unit]
+Description=CyberPower CP900EPFCLCD UPS monitor service
+After=network.target nut-server.service
+Wants=nut-server.service
+
+[Service]
+Type=simple
+EnvironmentFile=/opt/ups-management/ups-management.env
+ExecStart=/opt/ups-management/main.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
