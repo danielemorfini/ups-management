@@ -9,9 +9,15 @@ class UPSClient:
     @staticmethod
     def _run_cmd(cmd: str) -> str:
         try:
-            res = subprocess.run(cmd, shell=True, capture_output=True, text=True, check=True)
+            res = subprocess.run(
+                cmd, shell=True, capture_output=True, text=True,
+                check=True, timeout=Config.UPSC_TIMEOUT
+            )
             return res.stdout.strip()
         except subprocess.CalledProcessError:
+            return ""
+        except subprocess.TimeoutExpired:
+            logger.error(f"Command timed out after {Config.UPSC_TIMEOUT}s: {cmd}")
             return ""
 
     @classmethod

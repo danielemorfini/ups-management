@@ -10,6 +10,7 @@ class Config:
 	Central configuration class for the UPS Monitor.
 	"""
 	UPS_NAME = os.getenv("UPS_NAME", "cyberpower@localhost")
+	UPSC_TIMEOUT = env_int("UPSC_TIMEOUT", 10)
 	TARGET_EMAIL = os.getenv("TARGET_EMAIL", "root")
 
 	MIN_CHARGE = env_int("MIN_CHARGE", 75)
