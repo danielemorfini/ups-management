@@ -94,7 +94,10 @@ class ServiceManager:
                 if "status: running" in cls._run_cmd(f"qm status {vmid}"):
                     logger.info(f"Shutting down VM {vmid} ({vmname})...")
                     (Config.DATA_DIR / f"vm_{vmid}").touch()
-                    processes.append(subprocess.Popen(f"qm shutdown {vmid}", shell=True))
+                    processes.append(subprocess.Popen(
+                        f"qm shutdown {vmid} --timeout {Config.GUEST_SHUTDOWN_TIMEOUT} --forceStop 1",
+                        shell=True
+                    ))
                     action_log.append(
                         f"""
                         <tr>
@@ -114,7 +117,10 @@ class ServiceManager:
                 if "status: running" in cls._run_cmd(f"pct status {ctid}"):
                     logger.info(f"Shutting down LXC {ctid} ({ctname})...")
                     (Config.DATA_DIR / f"lxc_{ctid}").touch()
-                    processes.append(subprocess.Popen(f"pct shutdown {ctid}", shell=True))
+                    processes.append(subprocess.Popen(
+                        f"pct shutdown {ctid} --timeout {Config.GUEST_SHUTDOWN_TIMEOUT} --forceStop 1",
+                        shell=True
+                    ))
                     action_log.append(
                         f"""
                         <tr>
@@ -125,9 +131,16 @@ class ServiceManager:
                         """
                     )
 
-        # Wait for all VMs/LXCs to finish stopping
+        # Wait for all VMs/LXCs to finish stopping. --forceStop guarantees qm/pct
+        # itself returns within GUEST_SHUTDOWN_TIMEOUT, but this hard cap ensures a
+        # misbehaving command can never block the monitor loop indefinitely.
+        wait_timeout = Config.GUEST_SHUTDOWN_TIMEOUT + 15
         for p in processes:
-            p.wait()
+            try:
+                p.wait(timeout=wait_timeout)
+            except subprocess.TimeoutExpired:
+                logger.error(f"Shutdown command (pid {p.pid}) exceeded {wait_timeout}s. Killing it and moving on.")
+                p.kill()
 
         logger.info("All targeted services shut down.")
         return "\n".join(action_log)
