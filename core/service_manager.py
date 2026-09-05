@@ -23,12 +23,12 @@ class ServiceManager:
         # Stop active PBS tasks
         active_cmd = f"ssh -o StrictHostKeyChecking=no root@{Config.PBS_IP} 'proxmox-backup-manager task list --active true'"
         if cls._run_cmd(active_cmd):
-            stop_cmd = f"ssh root@{Config.PBS_IP} 'proxmox-backup-manager task list --active true | awk \"NR>1 {{print \\$1}}\" | xargs -I {{}} proxmox-backup-manager task stop {{}}'"
+            stop_cmd = f"ssh -o StrictHostKeyChecking=no root@{Config.PBS_IP} 'proxmox-backup-manager task list --active true | awk \"NR>1 {{print \\$1}}\" | xargs -I {{}} proxmox-backup-manager task stop {{}}'"
             cls._run_cmd(stop_cmd)
             logger.info("PBS active maintenance tasks stopped.")
 
         # Power off PBS
-        cls._run_cmd(f"ssh root@{Config.PBS_IP} 'systemctl poweroff'")
+        cls._run_cmd(f"ssh -o StrictHostKeyChecking=no root@{Config.PBS_IP} 'systemctl poweroff'")
 
         # Ping loop verification (Max 120s)
         logger.info(f"Waiting for PBS to go offline (Max timeout: {Config.PBS_TIMEOUT}s)...")
