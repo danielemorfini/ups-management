@@ -2,6 +2,10 @@
 
 A systemd daemon that monitors a CyberPower UPS and automatically manages Proxmox VM shutdowns when power is lost.
 
+> **Note:** this is a personal project, built and tuned for my own Proxmox/PBS homelab setup rather than as a general-purpose tool.
+>
+> Feel free to read, fork, or adapt it, but don't expect it to cover cases outside what I actually needed.
+
 ## Overview
 
 This service monitors your UPS battery status and responds to power events in three stages:
