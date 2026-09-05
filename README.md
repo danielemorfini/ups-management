@@ -177,15 +177,15 @@ Manually trigger an email by simulating a power event in the test cycle script.
 
 ## Files Overview
 
-| File        | Description                           |
-| ----------- | ------------------------------------- |
-| `main.py`   | Entry point, handles daemon lifecycle |
+| File      | Description                           |
+| --------- | ------------------------------------- |
+| `main.py` | Entry point, handles daemon lifecycle |
 
-| File                                | Description                |
-| ------------------------------------ | -------------------------- |
-| `config/settings.py`                | Configuration management   |
-| `config/custom-ups-monitor.service` | Systemd unit file          |
-| `config/ups-management.example.env` | Environment file template  |
+| File                                | Description               |
+| ----------------------------------- | ------------------------- |
+| `config/settings.py`                | Configuration management  |
+| `config/custom-ups-monitor.service` | Systemd unit file         |
+| `config/ups-management.example.env` | Environment file template |
 
 | File                      | Description                     |
 | ------------------------- | ------------------------------- |
@@ -195,6 +195,6 @@ Manually trigger an email by simulating a power event in the test cycle script.
 | `core/service_manager.py` | VM and host shutdown management |
 | `core/logger.py`          | Structured logging              |
 
-| File            | Description         |
-| --------------- | ------------------- |
+| File                  | Description         |
+| --------------------- | ------------------- |
 | `tests/test_cycle.py` | Manual testing tool |

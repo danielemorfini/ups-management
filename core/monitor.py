@@ -11,6 +11,7 @@ class UPSMonitor:
     def __init__(self):
         Config.DATA_DIR.mkdir(parents=True, exist_ok=True)
         self.prev_status = "OL"
+        self.critical_shutdown_notified = False
         if Config.LAST_STATE_FILE.exists():
             self.prev_status = Config.LAST_STATE_FILE.read_text().strip()
 
@@ -55,6 +56,7 @@ class UPSMonitor:
 
     def _handle_online(self):
         logger.info("Power restored. Transitioning to ONLINE phase.")
+        self.critical_shutdown_notified = False
         table_rows = ServiceManager.restore_services()
 
         body = "<p>UPS power restored. Services returning to normal operational state.</p>"
@@ -66,14 +68,19 @@ class UPSMonitor:
     def _handle_onbattery(self, charge: int, runtime: int):
         # 1. Host Shutdown Check (50%)
         if charge <= Config.SHUTDOWN_THRESHOLD:
-            logger.critical(f"Host Shutdown Threshold breached ({charge}%).")
-            # Ensure services are stopped first just in case the battery plummeted
-            if not Config.SHUTDOWN_MARKER.exists():
-                ServiceManager.shutdown_services()
+            if not self.critical_shutdown_notified:
+                logger.critical(f"Host Shutdown Threshold breached ({charge}%).")
+                self.critical_shutdown_notified = True
+                # Ensure services are stopped first just in case the battery plummeted
+                if not Config.SHUTDOWN_MARKER.exists():
+                    ServiceManager.shutdown_services()
 
-            body = f"<p>CRITICAL: Host Battery Threshold breached ({charge}%). Forcing Host Shutdown.</p>"
-            Notifier.send_email("CRITICAL: Host Shutting Down", "critical", body)
+                body = f"<p>CRITICAL: Host Battery Threshold breached ({charge}%). Forcing Host Shutdown.</p>"
+                Notifier.send_email("CRITICAL: Host Shutting Down", "critical", body)
 
+            # shutdown_host() wipes DATA_DIR (including SHUTDOWN_MARKER) every call, so it
+            # must stay outside the notified-guard above to keep retrying FSD each cycle
+            # until the UPS actually cuts power.
             ServiceManager.shutdown_host()
             return
 
@@ -91,12 +98,13 @@ class UPSMonitor:
             Notifier.send_email("WARNING: UPS Threshold Breached - Services Shutting Down", "warning", body, table_rows)
 
     def _handle_onlowbatt(self):
-        logger.critical("UPS hardware reported LOWBATT. Bypassing software thresholds.")
+        if not self.critical_shutdown_notified:
+            logger.critical("UPS hardware reported LOWBATT. Bypassing software thresholds.")
+            self.critical_shutdown_notified = True
+            if not Config.SHUTDOWN_MARKER.exists():
+                ServiceManager.shutdown_services()
 
-        if not Config.SHUTDOWN_MARKER.exists():
-            ServiceManager.shutdown_services()
-
-        body = "<p>CRITICAL: UPS hardware reports LOW BATT. Initiating immediate Host Shutdown.</p>"
-        Notifier.send_email("CRITICAL: UPS Low Battery - Host Shutting Down", "critical", body)
+            body = "<p>CRITICAL: UPS hardware reports LOW BATT. Initiating immediate Host Shutdown.</p>"
+            Notifier.send_email("CRITICAL: UPS Low Battery - Host Shutting Down", "critical", body)
 
         ServiceManager.shutdown_host()
