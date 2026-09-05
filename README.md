@@ -134,7 +134,7 @@ Use the included test script (run as a module from the project root so it can re
 
 ```sh
 # This simulates different UPS states for testing
-python3 -m test.test_cycle
+python3 -m tests.test_cycle
 ```
 
 ### Test 4: Verify Logging
@@ -197,4 +197,4 @@ Manually trigger an email by simulating a power event in the test cycle script.
 
 | File            | Description         |
 | --------------- | ------------------- |
-| `test/test_cycle.py` | Manual testing tool |
+| `tests/test_cycle.py` | Manual testing tool |
