@@ -1,4 +1,4 @@
-from config import Config
+from config.settings import Config
 from core.logger import logger
 from core.ups_client import UPSClient
 from core.service_manager import ServiceManager

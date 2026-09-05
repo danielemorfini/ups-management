@@ -1,6 +1,6 @@
 import subprocess
 from string import Template
-from config import Config
+from config.settings import Config
 from core.logger import logger
 
 class Notifier:

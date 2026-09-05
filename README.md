@@ -44,10 +44,10 @@ This service monitors your UPS battery status and responds to power events in th
 ### 1. Copy and Configure Environment File
 
 ```sh
-cp ups-management.example.env ups-management.env
+cp config/ups-management.example.env config/ups-management.env
 ```
 
-Edit `ups-management.env` with your settings:
+Edit `config/ups-management.env` with your settings:
 
 ### 2. Verify NUT Configuration
 
@@ -80,10 +80,10 @@ sudo mkdir -p /opt/ups-management/data
 
 ```sh
 # Copy service file to systemd
-sudo cp custom-ups-monitor.service /etc/systemd/system/
+sudo cp config/custom-ups-monitor.service /etc/systemd/system/
 
 # Or manually create /etc/systemd/system/custom-ups-monitor.service:
-# (see custom-ups-monitor.service in repo for content)
+# (see config/custom-ups-monitor.service in repo for content)
 ```
 
 ### Step 3: Enable and Start Service
@@ -130,11 +130,11 @@ sudo journalctl -u custom-ups-monitor.service -n 20 | grep "Starting"
 
 ### Test 3: Trigger Manual Test Cycle
 
-Use the included test script:
+Use the included test script (run as a module from the project root so it can resolve the `core`/`config` packages):
 
 ```sh
 # This simulates different UPS states for testing
-python3 test_cycle.py
+python3 -m test.test_cycle
 ```
 
 ### Test 4: Verify Logging
@@ -155,7 +155,7 @@ Manually trigger an email by simulating a power event in the test cycle script.
 ### Service won't start
 
 - Check if `/opt/ups-management/main.py` is executable
-- Verify `ups-management.env` exists and is readable
+- Verify `config/ups-management.env` exists and is readable
 - Check systemd status: `sudo systemctl status custom-ups-monitor.service`
 
 ### UPS not detected
@@ -177,15 +177,24 @@ Manually trigger an email by simulating a power event in the test cycle script.
 
 ## Files Overview
 
-| File                      | Description                           |
-| ------------------------- | ------------------------------------- |
-| `main.py`                 | Entry point, handles daemon lifecycle |
-| `config.py`               | Configuration management              |
-|                           |                                       |
-| `core/monitor.py`         | Main UPS state evaluation logic       |
-| `core/ups_client.py`      | Communicates with NUT                 |
-| `core/notifier.py`        | Email notifications                   |
-| `core/service_manager.py` | VM and host shutdown management       |
-| `core/logger.py`          | Structured logging                    |
-|                           |                                       |
-| `test_cycle.py`           | Manual testing tool                   |
+| File        | Description                           |
+| ----------- | ------------------------------------- |
+| `main.py`   | Entry point, handles daemon lifecycle |
+
+| File                                | Description                |
+| ------------------------------------ | -------------------------- |
+| `config/settings.py`                | Configuration management   |
+| `config/custom-ups-monitor.service` | Systemd unit file          |
+| `config/ups-management.example.env` | Environment file template  |
+
+| File                      | Description                     |
+| ------------------------- | ------------------------------- |
+| `core/monitor.py`         | Main UPS state evaluation logic |
+| `core/ups_client.py`      | Communicates with NUT           |
+| `core/notifier.py`        | Email notifications             |
+| `core/service_manager.py` | VM and host shutdown management |
+| `core/logger.py`          | Structured logging              |
+
+| File            | Description         |
+| --------------- | ------------------- |
+| `test/test_cycle.py` | Manual testing tool |

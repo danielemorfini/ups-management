@@ -2,7 +2,7 @@
 import time
 import signal
 import sys
-from config import Config
+from config.settings import Config
 from core.logger import logger
 from core.monitor import UPSMonitor
 

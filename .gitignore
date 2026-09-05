@@ -5,4 +5,4 @@
 __pycache__
 
 # Application-Related
-ups-management.env
+config/ups-management.env
