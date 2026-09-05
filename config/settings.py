@@ -20,6 +20,7 @@ class Config:
 	PBS_IP = os.getenv("PBS_IP", "192.168.1.251")
 	PBS_TIMEOUT = env_int("PBS_TIMEOUT", 120)
 	GUEST_SHUTDOWN_TIMEOUT = env_int("GUEST_SHUTDOWN_TIMEOUT", 60)
+	SERVICE_CMD_TIMEOUT = env_int("SERVICE_CMD_TIMEOUT", 30)
 	POLL_INTERVAL = env_int("POLL_INTERVAL", 5)
 
 	BASE_DIR = Path(os.getenv("BASE_DIR", "/opt/ups-management"))
