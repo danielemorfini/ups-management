@@ -12,6 +12,7 @@ class Config:
 	UPS_NAME = os.getenv("UPS_NAME", "cyberpower@localhost")
 	UPSC_TIMEOUT = env_int("UPSC_TIMEOUT", 10)
 	TARGET_EMAIL = os.getenv("TARGET_EMAIL", "root")
+	MAIL_TIMEOUT = env_int("MAIL_TIMEOUT", 15)
 
 	MIN_CHARGE = env_int("MIN_CHARGE", 75)
 	MIN_RUNTIME = env_int("MIN_RUNTIME", 2500)

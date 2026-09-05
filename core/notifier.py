@@ -60,7 +60,12 @@ class Notifier:
                 stdin=subprocess.PIPE,
                 text=True
             )
-            mail_proc.communicate(input=message)
-            logger.info(f"Email sent: '{subject}'")
+            try:
+                mail_proc.communicate(input=message, timeout=Config.MAIL_TIMEOUT)
+                logger.info(f"Email sent: '{subject}'")
+            except subprocess.TimeoutExpired:
+                mail_proc.kill()
+                mail_proc.communicate()
+                logger.error(f"Sending email timed out after {Config.MAIL_TIMEOUT}s: '{subject}'")
         except Exception as e:
             logger.error(f"Failed to send email: {e}")
